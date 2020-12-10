@@ -27,7 +27,15 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
+bridge_genre_venue = db.Table('Bridge_Genre_Venue',
+  db.Column('genre_id', db.Integer, db.ForeignKey('Genre.id'), primary_key=True),
+  db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
+)
 
+bridge_genre_artist = db.Table('Bridge_Genre_Artist',
+  db.Column('genre_id', db.Integer, db.ForeignKey('Genre.id'), primary_key=True),
+  db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
+)
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
@@ -70,24 +78,16 @@ class Show(db.Model):
     __tablename__ = 'Show'
 
     id = db.Column(db.Integer, primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
 
+
 class Genre(db.Model):
-  __table_name__ = 'Genre'
+  __tablename__ = 'Genre'
   id = db.Column(db.Integer, primary_key=True)
   genre_name = db.Column(db.String(100), nullable=False)
 
-bridge_genre_venue = db.Table('Bridge_Genre_Venue',
-  db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True),
-  db.Column('venue_id', db.Integer, db.ForeignKey('venue.id'), primary_key=True)
-)
-
-bridge_genre_artist = db.Table('Bridge_Genre_Artist',
-  db.Column('genre_id', db.Integer, db.ForeignKey('genre.id'), primary_key=True),
-  db.Column('artist_id', db.Integer, db.ForeignKey('artist.id'), primary_key=True)
-)
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
