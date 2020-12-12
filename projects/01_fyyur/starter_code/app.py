@@ -168,16 +168,31 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  #current_time = datetime.datetime.utcnow()
   current_time = datetime.datetime.now()
   this_venue = Venue.query.filter_by(id=venue_id).first()
   
-  d = {}
-  past_shows = Show.query.filter(Show.venue_id == venue_id, Show.start_time < current_time).all()
+  # get the show information and separate into future and past lists
+  this_venues_shows = Show.query.filter_by(venue_id=venue_id).all()
+  past_shows = []
+  upcoming_shows = []
+  for s in this_venues_shows:
+    this_artist = Artist.query.filter_by(id=s.artist_id).first()
+    s_dict = {}
+    s_dict['artist_id'] = s.artist_id
+    s_dict['artist_name'] = this_artist.name
+    s_dict['artist_image_link'] = this_artist.image_link
+    s_dict['start_time'] = s.start_time.strftime("%Y-%m-%d %H:%M:%S")
+    #print(s_dict)
+    if s.start_time < current_time:
+      # Past
+      past_shows.append(s_dict)
+    else:
+      # Future
+      upcoming_shows.append(s_dict)
+  
   past_shows_count = len(past_shows)
-  upcoming_shows = Show.query.filter(Show.venue_id == venue_id, Show.start_time > current_time).all()
-  # hier brauche ich nur die artist id namen und link
-  upcoming_shows_count = len(past_shows)
+  upcoming_shows_count = len(upcoming_shows)
+  d = {}
   d['id'] = this_venue.id
   d['name'] = this_venue.name
   d['genres'] = this_venue.genres
@@ -273,7 +288,6 @@ def show_venue(venue_id):
     "upcoming_shows_count": 1,
   }
   #data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
-  #return render_template('pages/show_venue.html', venue=this_venue)
   return render_template('pages/show_venue.html', venue=d)
   #return render_template('pages/show_venue.html', venue=data)
 
@@ -404,7 +418,44 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
+  current_time = datetime.datetime.now()
   this_artist = Artist.query.filter_by(id=artist_id).first()
+  all_shows = Show.query.filter_by(artist_id=artist_id).all()
+  past_shows = []
+  upcoming_shows = []
+  for s in all_shows:
+    this_venue = Venue.query.filter_by(id=s.venue_id).first()
+    v_dict = {}
+    v_dict['venue_id'] = s.venue_id
+    v_dict['venue_name'] = this_venue.name
+    v_dict['venue_image_link'] = this_venue.image_link
+    v_dict['start_time'] = s.start_time.strftime("%Y-%m-%d %H:%M:%S")
+  
+    if s.start_time < current_time:
+      # Past
+      past_shows.append(v_dict)
+    else:
+      # Future
+      upcoming_shows.append(v_dict)
+  
+  past_shows_count = len(past_shows)
+  upcoming_shows_count = len(upcoming_shows)
+  d = {}
+  d['id'] = this_artist.id
+  d['name'] = this_artist.name
+  d['genres'] = this_artist.genres
+  d['city'] = this_artist.city
+  d['state'] = this_artist.state
+  d['phone'] = this_artist.phone
+  d['website'] = this_artist.website
+  d['facebook_link'] = this_artist.facebook_link
+  d['seeking_venue'] = this_artist.seeking_venue
+  d['seeking_description'] = this_artist.seeking_description
+  d['image_link'] = this_artist.image_link
+  d['past_shows'] = past_shows
+  d['upcoming_shows'] = upcoming_shows
+  d['past_shows_count'] = past_shows_count
+  d['upcoming_shows_count'] = upcoming_shows_count
 
   data1={
     "id": 4,
@@ -479,7 +530,7 @@ def show_artist(artist_id):
   }
   #data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
   #return render_template('pages/show_artist.html', artist=data)
-  return render_template('pages/show_artist.html', artist=this_artist)
+  return render_template('pages/show_artist.html', artist=d)
 
 #  Update
 #  ----------------------------------------------------------------
